@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Space Alien Adventure - Random Challenge Game</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .game-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 600px;
+            width: 90%;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .question-display {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            margin: 30px 0;
+            min-height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+
+        .question-text {
+            font-size: 1.3em;
+            color: #495057;
+            line-height: 1.6;
+        }
+
+        .welcome-text {
+            font-size: 1.2em;
+            color: #6c757d;
+            font-style: italic;
+        }
+
+        .game-btn {
+            background: linear-gradient(45deg, #ff6b6b, #ffa500);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.2em;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 20px;
+            font-weight: bold;
+            box-shadow: 0 8px 15px rgba(255, 107, 107, 0.3);
+        }
+
+        .game-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 20px rgba(255, 107, 107, 0.4);
+        }
+
+        .game-btn:active {
+            transform: translateY(0);
+        }
+
+        .stats {
+            background: #e9ecef;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px 0;
+            font-size: 1.1em;
+            color: #495057;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #e9ecef;
+            border-radius: 5px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #28a745, #20c997);
+            transition: width 0.5s ease;
+        }
+
+        .game-over {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            color: #856404;
+        }
+
+        .reset-btn {
+            background: linear-gradient(45deg, #6c757d, #495057);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1em;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .reset-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 12px rgba(108, 117, 125, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>🚀 Space Alien Adventure 🚀</h1>
+
+        <div class="question-display">
+            <div class="welcome-text">
+                🚀 Welcome to Space Alien Adventure!<br>
+                Ready for space challenges?
+            </div>
+        </div>
+
+        <div class="stats">
+            <div>Remaining: <span id="remaining-count">0</span></div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+            </div>
+            <div>Completed: <span id="completed-count">0</span></div>
+        </div>
+
+        <button class="game-btn" id="next-btn" onclick="getNextQuestion()">
+            🚀 Launch Challenge!
+        </button>
+
+        <button class="reset-btn" id="reset-btn" onclick="resetGame()" style="display: none;">
+            🔄 Restart
+        </button>
+    </div>
+
+    <script>
+        // 🚀 Space Alien Challenge List - 29 Awesome Tasks
+        const questions = [
+            "Speak to someone in an 'alien language' you just invented（用你想象的外星语言跟身边的人打招呼）",
+            "Walk around as if you were on the Moon（模仿在月球上走路，走一圈）",
+            "Say 'What time is it?' in a robot voice（用机器人音效说'现在几点了'）",
+            "Announce a name for yourself as if you live in the year 3025（给自己起一个3025年的名字并宣布）",
+            "Clap your hands for 5 seconds as if you were in zero gravity（模拟宇航员在失重中拍手5秒）",
+            "Report today's weather on Mars（播报一条火星天气预报）",
+            "Pick up any object and pretend it is future food, then review its taste（拿一样东西假装是未来食物并点评）",
+            "Shake hands like a robot and say one blessing（模仿机器人握手并说一句祝福）",
+            "Answer any question as if you were an AI assistant（别人提问，你必须用AI助手风格回答）",
+            "Perform a 15-second 'zero-gravity dance'（做一段15秒零重力舞蹈）",
+            "Make up an ad to sell a non-existent future technology（即兴编广告推销不存在的未来科技）",
+            "Act like you are in a spaceship elevator under acceleration or weightlessness（表演飞船电梯里失重/加速的样子）",
+            "Pretend to be yourself 50 years in the future, and say something to the present you（假装你是50年后的自己，对现在的你说一句话）",
+            "Dance like an alien to 10 seconds of random music（随机放10秒音乐，跳一段外星尬舞）",
+            "Announce breaking news: 'Earth has just been invaded by aliens'（宣布一条地球刚被外星人入侵的新闻）",
+            "Invite another person and act out the first meeting between an Earthling and an alien（邀请一个人模拟地球人与外星人初次见面的对话）",
+            "Pretend you are being sucked into a black hole with exaggerated movements（假装被黑洞吸进去，夸张表演）",
+            "Pretend to be a news anchor on an interstellar radio station（假装在星际电台播报银河快讯）",
+            "Act like a malfunctioning AI, starting calm and turning crazy（模仿失控的AI，从冷静到疯狂）",
+            "Re-enact a daily scene (like drinking water) but in reverse as if rewinding time（倒放动作表演一个日常场景，如喝水）",
+            "Translate someone's 'alien language' into human speech, making it up as you go（别人说外星语，你即兴当翻译官）",
+            "Deliver a captain's speech about leading everyone to a new home beyond Earth（发表带大家离开地球去新家园的船长演讲）",
+            "Act like an astronaut who lost connection, using only body language and mouth shapes（模拟宇航员失联，用肢体嘴型求救）",
+            "Pretend you are job-hunting in the year 2125 and sell yourself in a funny way（假装在2125年求职，搞笑推销自己）",
+            "Pretend you have three clones of yourself arguing at the same time（模仿自己有三个分身在争吵）",
+            "Act out a spaceship alarm and lead everyone in an emergency evacuation（模拟飞船警报，带大家紧急疏散）",
+            "Host a 30-second 'space cooking show' teaching how to cook alien food（做一个30秒太空料理教学）",
+            "Give a passionate speech to run for Galactic President（发表竞选银河总统的激情演讲）",
+            "Sing an emotional song in a made-up alien language（生情并茂地唱一首外星语歌曲，可胡编乱造）"
+        ];
+
+        // Game state
+        let remainingQuestions = [...questions];
+        let completedCount = 0;
+        let currentQuestion = null;
+
+        // DOM elements
+        const questionDisplay = document.querySelector('.question-display');
+        const questionText = document.querySelector('.question-text');
+        const remainingCount = document.getElementById('remaining-count');
+        const completedCountEl = document.getElementById('completed-count');
+        const progressFill = document.getElementById('progress-fill');
+        const nextBtn = document.getElementById('next-btn');
+        const resetBtn = document.getElementById('reset-btn');
+
+        // Initialize game
+        function initializeGame() {
+            remainingQuestions = [...questions];
+            completedCount = 0;
+            currentQuestion = null;
+
+            updateStats();
+            showWelcome();
+        }
+
+        // Show welcome message
+        function showWelcome() {
+            questionDisplay.innerHTML = `
+                <div class="welcome-text">
+                    Welcome to the adventure!<br>
+                    Click the button below to start your challenge!
+                </div>
+            `;
+            nextBtn.textContent = '🎯 Start Adventure!';
+            nextBtn.style.display = 'inline-block';
+            resetBtn.style.display = 'none';
+        }
+
+        // Get next random question
+        function getNextQuestion() {
+            if (remainingQuestions.length === 0) {
+                showGameOver();
+                return;
+            }
+
+            // Select random question
+            const randomIndex = Math.floor(Math.random() * remainingQuestions.length);
+            currentQuestion = remainingQuestions.splice(randomIndex, 1)[0];
+
+            // Display question
+            displayQuestion(currentQuestion);
+            completedCount++;
+            updateStats();
+        }
+
+        // Display question
+        function displayQuestion(question) {
+            questionDisplay.innerHTML = `
+                <div class="question-text">
+                    ${question}
+                </div>
+            `;
+
+            nextBtn.textContent = '🚀 Next Challenge';
+        }
+
+        // Update statistics
+        function updateStats() {
+            const totalQuestions = questions.length;
+            remainingCount.textContent = remainingQuestions.length;
+            completedCountEl.textContent = completedCount;
+
+            const progressPercent = (completedCount / totalQuestions) * 100;
+            progressFill.style.width = `${progressPercent}%`;
+        }
+
+        // Show game over
+        function showGameOver() {
+            questionDisplay.innerHTML = `
+                <div class="game-over">
+                    🎉 Congratulations! You've completed all challenges!<br>
+                    Finished ${questions.length} alien tasks!
+                </div>
+            `;
+
+            nextBtn.style.display = 'none';
+            resetBtn.style.display = 'inline-block';
+        }
+
+        // Reset game
+        function resetGame() {
+            initializeGame();
+        }
+
+        // Keyboard shortcuts support
+        document.addEventListener('keydown', function(event) {
+            if (event.code === 'Space' || event.code === 'Enter') {
+                event.preventDefault();
+                if (remainingQuestions.length > 0) {
+                    getNextQuestion();
+                } else if (resetBtn.style.display !== 'none') {
+                    resetGame();
+                }
+            }
+        });
+
+        // Initialize
+        initializeGame();
+    </script>
+</body>
+</html>
